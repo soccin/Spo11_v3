@@ -1,0 +1,4 @@
+more spo11_Pipeline01.sh 
+more ../MATM280212___03a___UNIQUE_FILT.map 
+cat | wc
+subl sam2MapCheckClip.py 
