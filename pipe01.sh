@@ -53,7 +53,7 @@ qSYNC MERGEMULTI
 MAPFILE=${SAMPLE/Sample_/}___03a___MULTI_FILT.map
 for ci in `cat CHROMS`; do
     echo $ci;
-    mkdir $ci;
+    mkdir -p $ci;
     bsub -N GREP \
     	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>$ci/${MAPFILE%%.map}__SPLIT,${ci}.map;
 done

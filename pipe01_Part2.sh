@@ -16,28 +16,23 @@ for ci in `cat ${GTAG}_CHROMS`; do
     bsub -N GREP \
     	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>$ci/${MAPFILE%%.map}__SPLIT,${ci}.map;
 done
-qSYNC GREP
-
-find chr* | fgrep .map | xargs -n 1 qsub -N RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
-qSYNC RSCRIPT
-
-find chr* | fgrep Rdata | fgrep -v HitMap | fgrep UNIQUE \
-	| xargs -n 1 qsub -N RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
-
-qsub -pe alloc 12 -N MERGEMULTI ~/Work/SGE/qCMD $BIN/mergeMultiMaps.sh _._results04a/$GTAG/$TAG/${SAMPLE}
-qSYNC MERGEMULTI
-
 MMAPFILE=${MAPFILE/UNIQUE/MULTI}
 for ci in `cat ${GTAG}_CHROMS`; do
     echo $ci;
-    mkdir $ci;
+    mkdir -p $ci;
     bsub -N GREP \
-    	/bin/egrep -w \"\($ci\|chrom\)\" $MMAPFILE \| cut -f1-12,14- \>$ci/${MMAPFILE%%.map}__SPLIT,${ci}.map;
+        /bin/egrep -w \"\($ci\|chrom\)\" $MMAPFILE \| cut -f1-12,14- \>$ci/${MMAPFILE%%.map}__SPLIT,${ci}.map;
 done
 qSYNC GREP
-find chr* | fgrep .map | fgrep MULTI | xargs -n 1 qsub -N RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
+
+find chr* | fgrep .map | xargs -n 1 qsub -N RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
+find chr* | fgrep .map | fgrep MULTI | xargs -n 1 \
+    qsub -N RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
 qSYNC RSCRIPT
 
+find chr* | fgrep Rdata | fgrep -v HitMap | fgrep UNIQUE \
+	| xargs -n 1 qsub -N RSCRIPT_2 ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
+
 find chr* | fgrep Rdata | fgrep -v HitMap | fgrep MULTI \
-	| xargs -n 1 qsub -N RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
+	| xargs -n 1 qsub -N RSCRIPT_2 ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
 
