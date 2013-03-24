@@ -20,9 +20,9 @@ def formatCigar(cigar):
 
 def getGmapperOpts(cmd):
     F=cmd.split()
-    parse=[(i,x.replace("-","")) for i,x in enumerate(F) 
+    parse=[(i,x.replace("-","")) for i,x in enumerate(F)
            if x[0]=="-" and x[1] not in "-0123456789"]
-    ret=dict([(x,F[i+1]) for i,x in parse]) 
+    ret=dict([(x,F[i+1]) for i,x in parse])
     ret['h']=int(ret['h'])
     ret['i']=int(ret['i'])
     ret['m']=int(ret['m'])
@@ -62,7 +62,7 @@ for si in sam:
     rightClipMM = sum([x.upper() not in "GN" for x in rightClipSeq])
     rightClipMM_N = sum([x.upper()=="N" for x in rightClipSeq])
     oldScore=si.opt("AS")
-    
+
     newScore=opts['i']*(leftClipMM+leftClipMM_N/4+rightClipMM+rightClipMM_N/4)+oldScore
     #print >>sys.stderr, sam.references[si.rname], si.pos-1, si.aend+1, "clip=",(leftClip, rightClip), "CIGAR=",si.cigar, "Score=",(oldScore, newScore), "OPTS=",(opts['i'],opts['h'])
     if 1 or newScore>=opts['h']:
@@ -81,16 +81,16 @@ for si in sam:
         out.append(leftClipSeq)
         out.append(rightClipSeq)
         #out.append((leftClipMM,rightClipMM))
-        # 
+        #
         # Get genome flank
-        #leftFlank=0 if si.pos-1<0 else si.pos-1 
+        #leftFlank=0 if si.pos-1<0 else si.pos-1
         #out.append(genome.fetch(chrom,leftFlank,si.pos))
         #out.append(genome.fetch(chrom,si.aend,si.aend+1))
         if si.opt("IH")==1:
             print >>uniqueFP, "\t".join(map(str,out))
         else:
             print >>multiFP, "\t".join(map(str,out))
-            
+
 uniqueFP.close()
 multiFP.close()
 
