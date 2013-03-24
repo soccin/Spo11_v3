@@ -1,27 +1,36 @@
 #!/bin/bash
 
 source ~/Work/SGE/sge.sh
-BIN=pipe01.bin
+
+SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BIN=$SDIR/pipe01.bin
+echo $SDIR $BIN
 
 GTAG=mm10
 GENOME=/ifs/data/bio/Genomes/M.musculus/mm10/mouse_mm10__All.fa
 
 MAPFILE=$1
+BASE=$(basename $MAPFILE)
 
 echo $MAPFILE
 
-for ci in `cat ${GTAG}_CHROMS`; do
+for ci in `cat $SDIR/${GTAG}_CHROMS`; do
     echo $ci;
     mkdir $ci;
     bsub -N GREP \
-    	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>$ci/${MAPFILE%%.map}__SPLIT,${ci}.map;
+	    /bin/zcat $MAPFILE \| $BIN/filterNoise.sh \| \
+		/bin/egrep -w \"\($ci\|chrom\)\" \| cut -f1-12,14- \>$ci/${BASE%%.map}__SPLIT,${ci}.map;
 done
+
 MMAPFILE=${MAPFILE/UNIQUE/MULTI}
-for ci in `cat ${GTAG}_CHROMS`; do
+MBASE=$(basename $MMAPFILE)
+
+for ci in `cat $SDIR/${GTAG}_CHROMS`; do
     echo $ci;
     mkdir -p $ci;
     bsub -N GREP \
-        /bin/egrep -w \"\($ci\|chrom\)\" $MMAPFILE \| cut -f1-12,14- \>$ci/${MMAPFILE%%.map}__SPLIT,${ci}.map;
+	    /bin/zcat $MMAPFILE \| $BIN/filterNoise.sh \| \
+        /bin/egrep -w \"\($ci\|chrom\)\" \| cut -f1-12,14- \>$ci/${MBASE%%.map}__SPLIT,${ci}.map;
 done
 qSYNC GREP
 
