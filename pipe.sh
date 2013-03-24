@@ -41,7 +41,7 @@ fi
 
 $BIN/mergeMaps.sh $OUTFOLDER
 
-head -100 $(find $OUTFOLDER -name '*.sam' | head -1) | egrep "^@SQ" | cut -f2 | sed 's/SN://' >CHROMS
+head -100 $(find $OUTFOLDER -name '*.sam' | head -1) | egrep "^@SQ" | cut -f2 | sed 's/SN://' | head -4 >CHROMS
 
 MAPFILE=${SAMPLE/Sample_/s_}___UNIQUE_FILT.map
 echo "MAPFILE="$MAPFILE
@@ -54,16 +54,16 @@ if [ $DOFULL == "YES" ]; then
 else
     for ci in `cat CHROMS`; do
         echo $ci;
-        mkdir $ci;
+        mkdir -p splitChrom/$ci;
         bsub -N ${TAG}_GREP \
-        	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>$ci/${MAPFILE%%.map}__SPLIT,${ci}.map;
+        	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>splitChrom/$ci/${MAPFILE%%.map}__SPLIT,${ci}.map;
     done
     qSYNC ${TAG}_GREP
 
-    find chr* | fgrep .map | xargs -n 1 qsub -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
+    find splitChrom | fgrep .map | xargs -n 1 qsub -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
     qSYNC ${TAG}_RSCRIPT
 
-    find chr* | fgrep Rdata | fgrep -v HitMap | fgrep UNIQUE \
+    find splitChrom | fgrep Rdata | fgrep -v HitMap | fgrep UNIQUE \
     	| xargs -n 1 qsub -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
 fi
 
@@ -74,14 +74,14 @@ MAPFILE=${SAMPLE/Sample_/s_}___MULTI_FILT.map
 
 for ci in `cat CHROMS`; do
     echo $ci;
-    mkdir -p $ci;
+    mkdir -p splitChrom/$ci;
     bsub -N ${TAG}_GREP \
-    	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>$ci/${MAPFILE%%.map}__SPLIT,${ci}.map;
+    	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>splitChrom/$ci/${MAPFILE%%.map}__SPLIT,${ci}.map;
 done
 qSYNC ${TAG}_GREP
-find chr* | fgrep .map | fgrep MULTI | xargs -n 1 qsub -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
+find splitChrom | fgrep .map | fgrep MULTI | xargs -n 1 qsub -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
 qSYNC ${TAG}_RSCRIPT
 
-find chr* | fgrep Rdata | fgrep -v HitMap | fgrep MULTI \
+find splitChrom | fgrep Rdata | fgrep -v HitMap | fgrep MULTI \
 	| xargs -n 1 qsub -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
 
