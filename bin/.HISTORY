@@ -4,3 +4,4 @@ cat | wc
 subl sam2MapCheckClip.py 
 more sam2MapCheckClip.py 
 cd ..
+echo DS:: Mon Mar 25 14:45:01 EDT 2013
