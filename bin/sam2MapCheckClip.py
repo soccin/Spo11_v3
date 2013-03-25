@@ -34,6 +34,18 @@ def fmtSAMalignPos(aa):
     else:
         return [aa.pos+1,aa.aend,"+"]
 
+def printMaps(bunch,uniqueFP,multiFP):
+    if len(bunch)==1:
+        out=bunch[0]
+        out[7]=1
+        print >>uniqueFP, "\t".join(map(str,out))
+    else:
+        for out in bunch:
+            #
+            # Reset NH column to correct multiplicity count
+            out[7]=len(bunch)
+            print >>multiFP, "\t".join(map(str,out))
+
 samFile=sys.argv[1]
 genomeFile=sys.argv[2]
 
@@ -48,6 +60,9 @@ print >>multiFP, COLNAMES
 sam=pysam.Samfile(samFile)
 opts=getGmapperOpts(sam.header['PG'][0]['CL'])
 genome=pysam.Fastafile(genomeFile)
+
+bunch=[]
+currentQname=""
 
 for si in sam:
     assert isinstance(si,pysam.AlignedRead)
@@ -64,8 +79,10 @@ for si in sam:
     oldScore=si.opt("AS")
 
     newScore=opts['i']*(leftClipMM+leftClipMM_N/4+rightClipMM+rightClipMM_N/4)+oldScore
+
     #print >>sys.stderr, sam.references[si.rname], si.pos-1, si.aend+1, "clip=",(leftClip, rightClip), "CIGAR=",si.cigar, "Score=",(oldScore, newScore), "OPTS=",(opts['i'],opts['h'])
-    if 1 or newScore>=opts['h']:
+
+    if float(newScore)/float(oldScore)>0.85:
         chrom=sam.references[si.rname]
         pos=fmtSAMalignPos(si)
         out=[chrom]+pos
@@ -80,16 +97,24 @@ for si in sam:
         out.append(si.seq[si.qstart:si.qend])
         out.append(leftClipSeq)
         out.append(rightClipSeq)
+
         #out.append((leftClipMM,rightClipMM))
         #
         # Get genome flank
         #leftFlank=0 if si.pos-1<0 else si.pos-1
         #out.append(genome.fetch(chrom,leftFlank,si.pos))
         #out.append(genome.fetch(chrom,si.aend,si.aend+1))
-        if si.opt("IH")==1:
-            print >>uniqueFP, "\t".join(map(str,out))
+
+        if si.qname!=currentQname:
+            if bunch:
+                printMaps(bunch,uniqueFP,multiFP)
+            bunch=[out]
+            currentQname=si.qname
         else:
-            print >>multiFP, "\t".join(map(str,out))
+            bunch.append(out)
+
+if bunch:
+    printMaps(bunch,uniqueFP,multiFP)
 
 uniqueFP.close()
 multiFP.close()
