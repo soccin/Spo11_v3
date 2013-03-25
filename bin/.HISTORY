@@ -4,4 +4,16 @@ cat | wc
 subl sam2MapCheckClip.py 
 more sam2MapCheckClip.py 
 cd ..
-echo DS:: Mon Mar 25 14:45:01 EDT 2013
+hg diff
+hg commit
+hg diff
+hg log
+hg diff -r 1 spo11_Pipeline01.sh 
+hg log
+hg log | head
+hg diff -r 13 spo11_Pipeline01.sh 
+hg diff -r 12 spo11_Pipeline01.sh 
+hg diff -r 12 
+hg diff -r 11 
+hg diff -r 12
+cd ..

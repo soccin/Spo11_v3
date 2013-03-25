@@ -6,6 +6,8 @@ BAM_CHARD_CLIP=5
 BAM_CSOFT_CLIP=4
 BAM_CMATCH=0
 
+NEW_SCORE_FILTER_THRESHOLD=0.50
+
 cigarDict={BAM_CSOFT_CLIP:"S",BAM_CMATCH:"M",BAM_CHARD_CLIP:"H"}
 
 def formatCigar(cigar):
@@ -82,7 +84,7 @@ for si in sam:
 
     #print >>sys.stderr, sam.references[si.rname], si.pos-1, si.aend+1, "clip=",(leftClip, rightClip), "CIGAR=",si.cigar, "Score=",(oldScore, newScore), "OPTS=",(opts['i'],opts['h'])
 
-    if float(newScore)/float(oldScore)>0.85:
+    if float(newScore)/float(oldScore)>NEW_SCORE_FILTER_THRESHOLD:
         chrom=sam.references[si.rname]
         pos=fmtSAMalignPos(si)
         out=[chrom]+pos
