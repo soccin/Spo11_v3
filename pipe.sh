@@ -37,7 +37,7 @@ qSYNC ${TAG}_SAM2MAP
 
 $BIN/mergeMaps.sh $OUTFOLDER
 
-head -100 $(find $OUTFOLDER -name '*.sam' | head -1) | egrep "^@SQ" | cut -f2 | sed 's/SN://' | head -4 >CHROMS
+head -100 $(find $OUTFOLDER -name '*.sam' | head -1) | egrep "^@SQ" | cut -f2 | sed 's/SN://' >CHROMS
 
 MAPFILE=${SAMPLE/Sample_/s_}___UNIQUE_FILT.map
 echo "MAPFILE="$MAPFILE
