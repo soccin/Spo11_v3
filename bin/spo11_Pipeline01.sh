@@ -5,9 +5,12 @@ echo "###TS" `date`
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BIN=$SDIR
 
+####
+# Clipping Parameters
+#
 ADAPTER=AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC
+MIN_CLIP_LEN=12
 
-#GMAPPER=/home/socci/bin/gmapper-ls --local --qv-offset 33
 SHRIMP_FOLDER=/home/socci/Work/SeqAna/Mappers/SHRiMP/2_1_1/SHRiMP_2_1_1b
 GMAPPER=/ifs/data/socci/Work/SeqAna/Mappers/SHRiMP/2_1_1/SHRiMP_2_1_1b/bin/gmapper-ls
 
@@ -23,7 +26,7 @@ BASE=${FASTQ##*/}
 BASE=${BASE%%.*}
 BASE=$OUTFOLDER/$BASE
 
-zcat $FASTQ | /ifs/data/socci/opt/bin/fastx_clipper -a $ADAPTER -l 20 -n -v -Q33 -i - \
+zcat $FASTQ | /ifs/data/socci/opt/bin/fastx_clipper -a $ADAPTER -l $MIN_CLIP_LEN -n -v -Q33 -i - \
     | $BIN/splitMixer.py > ${BASE}___CLIPPED.fastq
 
 $GMAPPER -N 24 -U -g -1000 -q -1000 \
