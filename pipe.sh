@@ -27,10 +27,13 @@ echo $NUMFASTQ
 
 TAG=q_SPO11
 
+if [ -n "" ]; then 
+exit
 qsub -pe alloc 12 -N ${TAG}_MAP -t 1-$NUMFASTQ ~/Work/SGE/qArrayCMD FASTQ \
     $BIN/spo11_Pipeline01.sh \$task $GTAG $GENOME $OUTFOLDER
 
 qSYNC ${TAG}_MAP
+fi
 
 find $OUTFOLDER/* -name '*.sam' | xargs -n 1 -I % bsub -pe alloc 2 -N ${TAG}_SAM2MAP $BIN/sam2MapCheckClip.py % $GENOME
 qSYNC ${TAG}_SAM2MAP
