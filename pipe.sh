@@ -6,6 +6,8 @@
 
 GENOME=/home/socci/Work/Keeney/LamI/S.mikatae/CLEAN/sacMik.fa
 GTAG=sacMik
+DOFULL="NO"
+
 
 DDIR=$(echo $1 | sed 's/\/$//')
 PROJ=$(echo $DDIR | pyp s[-2])
@@ -27,13 +29,10 @@ echo $NUMFASTQ
 
 TAG=q_SPO11
 
-if [ -n "" ]; then 
-exit
 qsub -pe alloc 12 -N ${TAG}_MAP -t 1-$NUMFASTQ ~/Work/SGE/qArrayCMD FASTQ \
     $BIN/spo11_Pipeline01.sh \$task $GTAG $GENOME $OUTFOLDER
 
 qSYNC ${TAG}_MAP
-fi
 
 find $OUTFOLDER/* -name '*.sam' | xargs -n 1 -I % bsub -pe alloc 2 -N ${TAG}_SAM2MAP $BIN/sam2MapCheckClip.py % $GENOME
 qSYNC ${TAG}_SAM2MAP
@@ -44,8 +43,6 @@ head -100 $(find $OUTFOLDER -name '*.sam' | head -1) | egrep "^@SQ" | cut -f2 | 
 
 MAPFILE=${SAMPLE/Sample_/s_}___UNIQUE_FILT.map
 echo "MAPFILE="$MAPFILE
-
-DOFULL="NO"
 
 if [ $DOFULL == "YES" ]; then
     echo "DO FULL MAPS"
