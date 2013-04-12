@@ -4,10 +4,9 @@
 ## User Paramters
 ###
 
-GENOME=/home/socci/Work/Keeney/LamI/S.mikatae/CLEAN/sacMik.fa
-GTAG=sacMik
+GENOME=/home/socci/Work/Keeney/LamI/S.kudriavzevii/CLEAN/sacKud.fa
+GTAG=sacKud
 DOFULL="NO"
-
 
 DDIR=$(echo $1 | sed 's/\/$//')
 PROJ=$(echo $DDIR | pyp s[-2])
