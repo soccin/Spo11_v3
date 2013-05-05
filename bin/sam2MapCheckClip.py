@@ -36,12 +36,17 @@ def fmtSAMalignPos(aa):
     else:
         return [aa.pos+1,aa.aend,"+"]
 
-def printMaps(bunch,uniqueFP,multiFP):
+stats=dict(uniqMaps=0,multiMaps=0,totalMaps=0)
+
+def printMaps(bunch,uniqueFP,multiFP,stats):
+    stats["totalMaps"]+=1
     if len(bunch)==1:
+        stats["uniqMaps"]+=1
         out=bunch[0]
         out[7]=1
         print >>uniqueFP, "\t".join(map(str,out))
     else:
+        stats["multiMaps"]+=1
         for out in bunch:
             #
             # Reset NH column to correct multiplicity count
@@ -109,15 +114,19 @@ for si in sam:
 
         if si.qname!=currentQname:
             if bunch:
-                printMaps(bunch,uniqueFP,multiFP)
+                printMaps(bunch,uniqueFP,multiFP,stats)
             bunch=[out]
             currentQname=si.qname
         else:
             bunch.append(out)
 
 if bunch:
-    printMaps(bunch,uniqueFP,multiFP)
+    printMaps(bunch,uniqueFP,multiFP,stats)
 
 uniqueFP.close()
 multiFP.close()
 
+statsFP=open(samFile+"_STATS.txt","w")
+print >>statsFP, "Total.Filtered.Maps=", stats["totalMaps"]
+print >>statsFP, "Unique.Filtered.Maps=", stats["uniqMaps"]
+print >>statsFP, "Multi.Filtered.Maps=", stats["multiMaps"]
