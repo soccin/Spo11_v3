@@ -4,8 +4,8 @@
 ## User Paramters
 ###
 
-GENOME=/home/socci/Work/Keeney/LamI/S.mikatae/CLEAN/sacMik.fa
-GTAG=sacMik
+GENOME=/ifs/data/bio/Genomes/M.musculus/mm10/mouse_mm10__All.fa
+GTAG=mouse_mm10__All
 DOFULL="NO"
 
 
