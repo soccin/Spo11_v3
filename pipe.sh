@@ -4,8 +4,8 @@
 ## User Paramters
 ###
 
-GENOME=/ifs/data/bio/Genomes/M.musculus/mm10/mouse_mm10__All.fa
-GTAG=mouse_mm10__All
+GENOME=/home/socci/Work/Keeney/LamI/S.mikatae/CLEAN/sacMik.fa
+GTAG=sacMik
 DOFULL="NO"
 
 
@@ -13,9 +13,7 @@ DDIR=$(echo $1 | sed 's/\/$//')
 PROJ=$(echo $DDIR | pyp s[-2])
 SAMPLE=$(echo $DDIR | pyp s[-1])
 
-## Subsample for testing
-#DATA=$DDIR/*R1_*.gz
-DATA=$(ls $DDIR/$R1_*.gz | awk 'BEGIN{srand(1234)}rand()<0.025{print $1}' | head -20)
+DATA=$DDIR/*R1_*.gz
 
 OUTFOLDER=_._results05/$GTAG/$PROJ/$SAMPLE
 mkdir -p $OUTFOLDER
