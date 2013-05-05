@@ -13,7 +13,10 @@ DDIR=$(echo $1 | sed 's/\/$//')
 PROJ=$(echo $DDIR | pyp s[-2])
 SAMPLE=$(echo $DDIR | pyp s[-1])
 
-DATA=$DDIR/*R1_*.gz
+## Subsample for testing
+#DATA=$DDIR/*R1_*.gz
+DATA=$(ls $DDIR/$R1_*.gz | awk 'BEGIN{srand(1234)}rand()<0.025{print $1}' | head -20)
+
 OUTFOLDER=_._results05/$GTAG/$PROJ/$SAMPLE
 mkdir -p $OUTFOLDER
 
@@ -25,9 +28,10 @@ BIN=$SDIR/bin
 
 ls $DATA >FASTQ
 NUMFASTQ=$(wc -l FASTQ | awk '{print $1}')
-echo $NUMFASTQ
+echo NUMFASTQ=$NUMFASTQ
 
-TAG=q_SPO11
+TAG=q_SPO11_$$
+echo TAG=$TAG
 
 qsub -pe alloc 12 -N ${TAG}_MAP -t 1-$NUMFASTQ ~/Work/SGE/qArrayCMD FASTQ \
     $BIN/spo11_Pipeline01.sh \$task $GTAG $GENOME $OUTFOLDER
