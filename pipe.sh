@@ -15,7 +15,7 @@ SAMPLE=$(echo $DDIR | pyp s[-1])
 
 ## Subsample for testing
 #DATA=$DDIR/*R1_*.gz
-DATA=$(ls $DDIR/$R1_*.gz | awk 'BEGIN{srand(1234)}rand()<0.025{print $1}' | head -20)
+DATA=$(ls $DDIR/*_R1_*.gz | awk 'BEGIN{srand(1234)}rand()<0.025{print $1}' | head -20)
 
 OUTFOLDER=_._results05/$GTAG/$PROJ/$SAMPLE
 mkdir -p $OUTFOLDER
