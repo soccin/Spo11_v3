@@ -1,31 +1,64 @@
 #!/usr/bin/env python2.7
 
+import sys
 import os
+import os.path
 
 class Stats():
     pass
 
-stats=Stats()
-stats.total=0
-stats.clipped=0
-stats.mapped=0
+stats=dict(
+    total=0,
+    clipped=0,
+    mapped=0,
+    Total_Filtered_Maps=0,
+    Unique_Filtered_Maps=0,
+    Multi_Filtered_Maps=0)
 
 def parseMapLog(fname,stats):
     with open(fname) as fp:
         for line in fp:
             if line.startswith("Input:"):
-                stats.total+=int(line.split()[1])
+                stats["total"]+=int(line.split()[1])
             elif line.startswith("Output:"):
-                stats.clipped+=int(line.split()[1])
+                stats["clipped"]+=int(line.split()[1])
             elif line.find("Reads Matched:")>-1:
-                stats.mapped+=int(line.split()[2].replace(",",""))
+                stats["mapped"]+=int(line.split()[2].replace(",",""))
+
+def parseStatsLog(fname,stats):
+    with open(fname) as fp:
+        for line in fp:
+            (key,value)=line.strip().split("= ")
+            stats[key.replace(".","_")]+=int(value)
 
 for fname in os.listdir("."):
     if fname.find("_MAP.e")>-1:
         parseMapLog(fname,stats)
 
 
-print "\t".join(map(str,
-    [stats.total,
-    stats.clipped,float(stats.clipped)/float(stats.total),
-    stats.mapped,float(stats.mapped)/float(stats.total)]))
+resultsDir=[x for x in os.listdir(".") if x.startswith("_._res")][0]
+for rec in os.walk(resultsDir):
+    for fname in rec[2]:
+        if fname.endswith("_STATS.txt"):
+            fullName=os.path.join(rec[0],fname)
+            parseStatsLog(fullName,stats)
+
+projectSample=sys.argv[1]
+
+HEADER="SAMPLE TOTAL.READS CLIPPED PCT.CLIPPED" \
++ "MAPPED PCT.MAPPED FILTERED PCT.FILTERED UNIQUE PCT.UNIQUE" \
++ "MULTI PCT.MULTI"
+
+
+if projectSample=="HEADER":
+    print HEADER.replace(" ","\t")
+else:
+    fTotal=float(stats["total"])
+    print "\t".join(map(str,
+        [projectSample,stats["total"],
+        stats["clipped"],stats["clipped"]/fTotal,
+        stats["mapped"],stats["mapped"]/fTotal,
+        stats["Total_Filtered_Maps"],stats["Total_Filtered_Maps"]/fTotal,
+        stats["Unique_Filtered_Maps"],stats["Unique_Filtered_Maps"]/fTotal,
+        stats["Multi_Filtered_Maps"],stats["Multi_Filtered_Maps"]/fTotal
+        ]))
