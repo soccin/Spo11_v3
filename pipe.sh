@@ -41,7 +41,7 @@ qSYNC ${TAG}_MAP
 find $OUTFOLDER/* -name '*.sam' | xargs -n 1 -I % bsub -pe alloc 2 -N ${TAG}_SAM2MAP $BIN/sam2MapCheckClip.py % $GENOME
 qSYNC ${TAG}_SAM2MAP
 
-$SDIR/getStats.py ${PROJ}___${SAMPLE/Sample_/s_/} >${SAMPLE/Sample_/s_/}___STATS.txt
+$SDIR/getStats.py ${PROJ}___${SAMPLE/Sample_/s_} >${SAMPLE/Sample_/s_}___STATS.txt
 $BIN/mergeMaps.sh $OUTFOLDER
 
 head -100 $(find $OUTFOLDER -name '*.sam' | head -1) | egrep "^@SQ" | cut -f2 | sed 's/SN://' >CHROMS
