@@ -13,9 +13,9 @@ DDIR=$(echo $1 | sed 's/\/$//')
 PROJ=$(echo $DDIR | pyp s[-2])
 SAMPLE=$(echo $DDIR | pyp s[-1])
 
+DATA=$DDIR/*R1_*.gz
 ## Subsample for testing
-#DATA=$DDIR/*R1_*.gz
-DATA=$(ls $DDIR/*_R1_*.gz | awk 'BEGIN{srand(31415)}rand()<0.05{print $1}')
+#DATA=$(ls $DDIR/*_R1_*.gz | awk 'BEGIN{srand(31415)}rand()<0.05{print $1}')
 
 OUTFOLDER=_._results05/$GTAG/$PROJ/$SAMPLE
 mkdir -p $OUTFOLDER
