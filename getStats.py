@@ -35,6 +35,13 @@ for fname in os.listdir("."):
     if fname.find("_MAP.e")>-1:
         parseMapLog(fname,stats)
 
+HEADER="SAMPLE TOTAL.READS CLIPPED PCT.CLIPPED" \
++ "MAPPED PCT.MAPPED FILTERED PCT.FILTERED UNIQUE PCT.UNIQUE" \
++ "MULTI PCT.MULTI"
+projectSample=sys.argv[1]
+if projectSample=="HEADER":
+    print HEADER.replace(" ","\t")
+    sys.exit()
 
 resultsDir=[x for x in os.listdir(".") if x.startswith("_._res")][0]
 for rec in os.walk(resultsDir):
@@ -43,22 +50,13 @@ for rec in os.walk(resultsDir):
             fullName=os.path.join(rec[0],fname)
             parseStatsLog(fullName,stats)
 
-projectSample=sys.argv[1]
-
-HEADER="SAMPLE TOTAL.READS CLIPPED PCT.CLIPPED" \
-+ "MAPPED PCT.MAPPED FILTERED PCT.FILTERED UNIQUE PCT.UNIQUE" \
-+ "MULTI PCT.MULTI"
-
-
-if projectSample=="HEADER":
-    print HEADER.replace(" ","\t")
-else:
-    fTotal=float(stats["total"])
-    print "\t".join(map(str,
-        [projectSample,stats["total"],
-        stats["clipped"],stats["clipped"]/fTotal,
-        stats["mapped"],stats["mapped"]/fTotal,
-        stats["Total_Filtered_Maps"],stats["Total_Filtered_Maps"]/fTotal,
-        stats["Unique_Filtered_Maps"],stats["Unique_Filtered_Maps"]/fTotal,
-        stats["Multi_Filtered_Maps"],stats["Multi_Filtered_Maps"]/fTotal
-        ]))
+    
+fTotal=float(stats["total"])
+print "\t".join(map(str,
+    [projectSample,stats["total"],
+    stats["clipped"],stats["clipped"]/fTotal,
+    stats["mapped"],stats["mapped"]/fTotal,
+    stats["Total_Filtered_Maps"],stats["Total_Filtered_Maps"]/fTotal,
+    stats["Unique_Filtered_Maps"],stats["Unique_Filtered_Maps"]/fTotal,
+    stats["Multi_Filtered_Maps"],stats["Multi_Filtered_Maps"]/fTotal
+    ]))
