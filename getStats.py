@@ -36,8 +36,8 @@ for fname in os.listdir("."):
         parseMapLog(fname,stats)
 
 HEADER="SAMPLE TOTAL.READS CLIPPED PCT.CLIPPED" \
-+ "MAPPED PCT.MAPPED FILTERED PCT.FILTERED UNIQUE PCT.UNIQUE" \
-+ "MULTI PCT.MULTI"
++ " MAPPED PCT.MAPPED FILTERED PCT.FILTERED UNIQUE PCT.UNIQUE" \
++ " MULTI PCT.MULTI"
 projectSample=sys.argv[1]
 if projectSample=="HEADER":
     print HEADER.replace(" ","\t")
