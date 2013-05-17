@@ -80,7 +80,7 @@ for si in sam:
     leftClipMM = sum([x.upper() not in "CN" for x in leftClipSeq])
     leftClipMM_N = sum([x.upper()=="N" for x in leftClipSeq])
     rightClip=0 if si.cigar[-1][0]!=BAM_CSOFT_CLIP else si.cigar[-1][1]
-    rightClipSeq = si.seq[-rightClip:]
+    rightClipSeq = si.seq[(len(si.seq)-rightClip):]
     rightClipMM = sum([x.upper() not in "GN" for x in rightClipSeq])
     rightClipMM_N = sum([x.upper()=="N" for x in rightClipSeq])
     oldScore=si.opt("AS")
