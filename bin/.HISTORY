@@ -17,3 +17,11 @@ hg diff -r 12
 hg diff -r 11 
 hg diff -r 12
 cd ..
+more mkHitMap.R 
+more mergeMultiMaps.sh 
+more mergeMaps.sh 
+more mkHitMap.R 
+more cvt2R.R 
+more mkHitMap.R 
+cd
+echo DS:: Fri May 17 17:39:06 EDT 2013
