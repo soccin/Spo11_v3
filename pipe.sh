@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo "DEFAULT BRANCH; DO NOT RUN THIS VERSION"
+echo "Update to specific branch"
+exit
+
 ###
 ## User Paramters
 ###
