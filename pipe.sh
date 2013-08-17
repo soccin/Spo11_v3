@@ -1,9 +1,5 @@
 #!/bin/bash
 
-echo "DEFAULT BRANCH; DO NOT RUN THIS VERSION"
-echo "Update to specific branch"
-exit
-
 ###
 ## User Paramters
 ###
@@ -17,9 +13,9 @@ DDIR=$(echo $1 | sed 's/\/$//')
 PROJ=$(echo $DDIR | pyp s[-2])
 SAMPLE=$(echo $DDIR | pyp s[-1])
 
+DATA=$DDIR/*R1_*.gz
 ## Subsample for testing
-#DATA=$DDIR/*R1_*.gz
-DATA=$(ls $DDIR/$R1_*.gz | awk 'BEGIN{srand(1234)}rand()<0.025{print $1}' | head -20)
+#DATA=$(ls $DDIR/*_R1_*.gz | awk 'BEGIN{srand(31415)}rand()<0.05{print $1}')
 
 OUTFOLDER=_._results05/$GTAG/$PROJ/$SAMPLE
 mkdir -p $OUTFOLDER
@@ -45,6 +41,7 @@ qSYNC ${TAG}_MAP
 find $OUTFOLDER/* -name '*.sam' | xargs -n 1 -I % bsub -pe alloc 2 -N ${TAG}_SAM2MAP $BIN/sam2MapCheckClip.py % $GENOME
 qSYNC ${TAG}_SAM2MAP
 
+$SDIR/getStats.py ${PROJ}___${SAMPLE/Sample_/s_} >${SAMPLE/Sample_/s_}___STATS.txt
 $BIN/mergeMaps.sh $OUTFOLDER
 
 head -100 $(find $OUTFOLDER -name '*.sam' | head -1) | egrep "^@SQ" | cut -f2 | sed 's/SN://' >CHROMS

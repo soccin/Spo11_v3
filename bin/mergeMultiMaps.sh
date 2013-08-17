@@ -1,6 +1,6 @@
 #!/bin/bash
 DIR=$1
-base=$(echo $DIR | perl -ne 'm|Sample_([^/]*)|; print "s_$1";')
+base=$(echo $DIR | perl -ne 'm|/Sample_([^/]*)|; print "s_$1";')
 file1=$(ls $DIR/*MULTI.map|head -1)
 OUT=${base}___MULTI_FILT.map
 echo "OUT="$OUT
