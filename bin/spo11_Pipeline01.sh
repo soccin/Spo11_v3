@@ -9,7 +9,7 @@ BIN=$SDIR
 # Clipping Parameters
 #
 ADAPTER=AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC
-MIN_CLIP_LEN=15
+MIN_CLIP_LEN=20
 
 SHRIMP_FOLDER=/home/socci/Work/SeqAna/Mappers/SHRiMP/2_1_1/SHRiMP_2_1_1b
 GMAPPER=/ifs/data/socci/Work/SeqAna/Mappers/SHRiMP/2_1_1/SHRiMP_2_1_1b/bin/gmapper-ls
