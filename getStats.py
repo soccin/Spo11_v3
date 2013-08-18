@@ -31,17 +31,19 @@ def parseStatsLog(fname,stats):
             (key,value)=line.strip().split("= ")
             stats[key.replace(".","_")]+=int(value)
 
-for fname in os.listdir("."):
-    if fname.find("_MAP.e")>-1:
-        parseMapLog(fname,stats)
-
 HEADER="SAMPLE TOTAL.READS CLIPPED PCT.CLIPPED" \
 + " MAPPED PCT.MAPPED FILTERED PCT.FILTERED UNIQUE PCT.UNIQUE" \
 + " MULTI PCT.MULTI"
 projectSample=sys.argv[1]
+
 if projectSample=="HEADER":
     print HEADER.replace(" ","\t")
     sys.exit()
+
+for fname in os.listdir("."):
+    if fname.find("_MAP.e")>-1:
+        parseMapLog(fname,stats)
+
 
 resultsDir=[x for x in os.listdir(".") if x.startswith("_._res")][0]
 for rec in os.walk(resultsDir):
@@ -50,7 +52,7 @@ for rec in os.walk(resultsDir):
             fullName=os.path.join(rec[0],fname)
             parseStatsLog(fullName,stats)
 
-    
+
 fTotal=float(stats["total"])
 print "\t".join(map(str,
     [projectSample,stats["total"],
