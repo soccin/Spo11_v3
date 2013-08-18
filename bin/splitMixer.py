@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.6
+#!/ifs/data/socci/opt/FAT/bin/python2.7
 
 import sys
 
