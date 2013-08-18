@@ -1,11 +1,32 @@
 #!/bin/bash
 
+source /home/socci/Work/SGE/sge.sh
+SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Make sure user sets parameters
+GENOME="NULL"
+
 ###
-## User Paramters
+## Get Run Paramters
 ###
 
-GENOME=/ifs/data/bio/Genomes/M.musculus/mm10/mouse_mm10__All.fa
-GTAG=mouse_mm10__All
+. spo11.sh
+
+if [ "$GENOME" == "NULL" ]; then
+    echo ""
+    echo "**********************************************"
+    echo "Must setup spo11.sh parameter file with"
+    echo "  GENOME"
+    echo "  GTAG"
+    echo "  MIN_CLIP_LEN"
+    echo ""
+    exit
+fi
+
+echo GENOME=$GENOME
+echo GTAG=$GTAG
+echo MIN_CLIP_LEN=$MIN_CLIP_LEN
+
 DOFULL="NO"
 
 
@@ -14,50 +35,59 @@ PROJ=$(echo $DDIR | pyp s[-2])
 SAMPLE=$(echo $DDIR | pyp s[-1])
 
 DATA=$DDIR/*R1_*.gz
-## Subsample for testing
+
+## Subsample for testing on MOUSE RUNS
 #DATA=$(ls $DDIR/*_R1_*.gz | awk 'BEGIN{srand(31415)}rand()<0.05{print $1}')
 
-OUTFOLDER=_._results05/$GTAG/$PROJ/$SAMPLE
+OUTFOLDER=`pwd`/_._resultsV3/$GTAG/$PROJ/$SAMPLE
+echo $OUTFOLDER
+
+CACHE=$OUTFOLDER/_cache
 mkdir -p $OUTFOLDER
+mkdir -p $CACHE
 
 ###
 
-source /home/socci/Work/SGE/sge.sh
-SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BIN=$SDIR/bin
 
-ls $DATA >FASTQ
-NUMFASTQ=$(wc -l FASTQ | awk '{print $1}')
+FASTQ=$CACHE/FASTQ
+ls $DATA >$FASTQ
+NUMFASTQ=$(wc -l $FASTQ | awk '{print $1}')
 echo NUMFASTQ=$NUMFASTQ
 
 TAG=q_SPO11_$$
 echo TAG=$TAG
 
-qsub -pe alloc 12 -N ${TAG}_MAP -t 1-$NUMFASTQ ~/Work/SGE/qArrayCMD FASTQ \
-    $BIN/spo11_Pipeline01.sh \$task $GTAG $GENOME $OUTFOLDER
+qsub -pe alloc 12 -q fat.q,all.q -N ${TAG}_MAP -t 1-$NUMFASTQ ~/Work/SGE/qArrayCMD $FASTQ \
+    $BIN/spo11_Pipeline01.sh \$task $GTAG $GENOME $CACHE $MIN_CLIP_LEN
 
 qSYNC ${TAG}_MAP
 
-find $OUTFOLDER/* -name '*.sam' | xargs -n 1 -I % bsub -pe alloc 2 -N ${TAG}_SAM2MAP $BIN/sam2MapCheckClip.py % $GENOME
+find $CACHE -name '*.sam' | xargs -n 1 -I % bsub -pe alloc 2 -N ${TAG}_SAM2MAP $BIN/sam2MapCheckClip.py % $GENOME
 qSYNC ${TAG}_SAM2MAP
 
+echo "Calling getStats ..."
 $SDIR/getStats.py ${PROJ}___${SAMPLE/Sample_/s_} >${SAMPLE/Sample_/s_}___STATS.txt
-$BIN/mergeMaps.sh $OUTFOLDER
-
-head -100 $(find $OUTFOLDER -name '*.sam' | head -1) | egrep "^@SQ" | cut -f2 | sed 's/SN://' >CHROMS
+echo "done"
 
 MAPFILE=${SAMPLE/Sample_/s_}___UNIQUE_FILT.map
+$BIN/mergeMaps.sh $CACHE $MAPFILE
+
+CHROMS=$CACHE/CHROMS
+head -1000 $(find $CACHE -name '*.sam' | head -1) | egrep "^@SQ" | cut -f2 | sed 's/SN://' >$CHROMS
+
 echo "MAPFILE="$MAPFILE
 
 if [ $DOFULL == "YES" ]; then
-    echo "DO FULL MAPS"
+    echo "DO FULL MAPS NO LONGER IMPLEMENTED"
     exit
 else
-    for ci in `cat CHROMS`; do
+    for ci in `cat $CHROMS`; do
         echo $ci;
         mkdir -p splitChrom/$ci;
-        bsub -N ${TAG}_GREP \
-        	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>splitChrom/$ci/${MAPFILE%%.map}__SPLIT,${ci}.map;
+        OUTMAP=splitChrom/$ci/$(basename $MAPFILE | sed 's/.map//')__SPLIT,${ci}.map
+        qsub -N ${TAG}_GREP ~/Work/SGE/qCMD \
+        	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>$OUTMAP;
     done
     qSYNC ${TAG}_GREP
 
@@ -65,24 +95,24 @@ else
     qSYNC ${TAG}_RSCRIPT
 
     find splitChrom | fgrep Rdata | fgrep -v HitMap | fgrep UNIQUE \
-    	| xargs -n 1 qsub -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
+    	| xargs -n 1 qsub -N ${TAG}_MKHITMAPU ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
 fi
 
-qsub -pe alloc 12 -N ${TAG}_MERGEMULTI ~/Work/SGE/qCMD $BIN/mergeMultiMaps.sh $OUTFOLDER
+MAPFILE=${SAMPLE/Sample_/s_}___MULTI_FILT.map
+qsub -pe alloc 12 -q fat.q,all.q -N ${TAG}_MERGEMULTI ~/Work/SGE/qCMD $BIN/mergeMultiMaps.sh $CACHE $MAPFILE
 qSYNC ${TAG}_MERGEMULTI
 
-MAPFILE=${SAMPLE/Sample_/s_}___MULTI_FILT.map
-
-for ci in `cat CHROMS`; do
+for ci in `cat $CHROMS`; do
     echo $ci;
-    mkdir -p splitChrom/$ci;
-    bsub -N ${TAG}_GREP \
-    	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>splitChrom/$ci/${MAPFILE%%.map}__SPLIT,${ci}.map;
+    OUTMAP=splitChrom/$ci/$(basename $MAPFILE | sed 's/.map//')__SPLIT,${ci}.map
+
+    qsub -N ${TAG}_GREP ~/Work/SGE/qCMD \
+    	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>$OUTMAP;
 done
 qSYNC ${TAG}_GREP
 find splitChrom | fgrep .map | fgrep MULTI | xargs -n 1 qsub -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
 qSYNC ${TAG}_RSCRIPT
 
 find splitChrom | fgrep Rdata | fgrep -v HitMap | fgrep MULTI \
-	| xargs -n 1 qsub -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
+	| xargs -n 1 qsub -N ${TAG}_MKHITMAPM ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
 
