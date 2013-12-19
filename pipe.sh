@@ -58,12 +58,16 @@ echo NUMFASTQ=$NUMFASTQ
 TAG=q_SPO11_$$
 echo TAG=$TAG
 
-qsub -pe alloc 12 -q fat.q,all.q -N ${TAG}_MAP -t 1-$NUMFASTQ ~/Work/SGE/qArrayCMD $FASTQ \
+QUEUES=lau.q,mad.q,nce.q
+
+qsub -pe alloc 24 -q $QUEUES -N ${TAG}_MAP -t 1-$NUMFASTQ ~/Work/SGE/qArrayCMD $FASTQ \
     $BIN/spo11_Pipeline01.sh \$task $GTAG $GENOME $CACHE $MIN_CLIP_LEN
+
+exit
 
 qSYNC ${TAG}_MAP
 
-find $CACHE -name '*.sam' | xargs -n 1 -I % bsub -pe alloc 2 -N ${TAG}_SAM2MAP $BIN/sam2MapCheckClip.py % $GENOME
+find $CACHE -name '*.sam' | xargs -n 1 -I % bsub -pe alloc 4 -N ${TAG}_SAM2MAP $BIN/sam2MapCheckClip.py % $GENOME
 qSYNC ${TAG}_SAM2MAP
 
 echo "Calling getStats ..."
@@ -86,20 +90,20 @@ else
         echo $ci;
         mkdir -p splitChrom/$ci;
         OUTMAP=splitChrom/$ci/$(basename $MAPFILE | sed 's/.map//')__SPLIT,${ci}.map
-        qsub -N ${TAG}_GREP ~/Work/SGE/qCMD \
+        qsub -q $QUEUES -N ${TAG}_GREP ~/Work/SGE/qCMD \
         	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>$OUTMAP;
     done
     qSYNC ${TAG}_GREP
 
-    find splitChrom | fgrep .map | xargs -n 1 qsub -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
+    find splitChrom | fgrep .map | xargs -n 1 qsub -q $QUEUES -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
     qSYNC ${TAG}_RSCRIPT
 
     find splitChrom | fgrep Rdata | fgrep -v HitMap | fgrep UNIQUE \
-    	| xargs -n 1 qsub -N ${TAG}_MKHITMAPU ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
+    	| xargs -n 1 qsub -q $QUEUES -N ${TAG}_MKHITMAPU ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
 fi
 
 MAPFILE=${SAMPLE/Sample_/s_}___MULTI_FILT.map
-qsub -pe alloc 12 -q fat.q,all.q -N ${TAG}_MERGEMULTI ~/Work/SGE/qCMD $BIN/mergeMultiMaps.sh $CACHE $MAPFILE
+qsub -q $QUEUES -pe alloc 24 -q fat.q,all.q -N ${TAG}_MERGEMULTI ~/Work/SGE/qCMD $BIN/mergeMultiMaps.sh $CACHE $MAPFILE
 qSYNC ${TAG}_MERGEMULTI
 
 for ci in `cat $CHROMS`; do
