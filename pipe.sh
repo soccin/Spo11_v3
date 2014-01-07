@@ -63,8 +63,6 @@ QUEUES=lau.q,mad.q,nce.q
 qsub -pe alloc 24 -q $QUEUES -N ${TAG}_MAP -t 1-$NUMFASTQ ~/Work/SGE/qArrayCMD $FASTQ \
     $BIN/spo11_Pipeline01.sh \$task $GTAG $GENOME $CACHE $MIN_CLIP_LEN
 
-exit
-
 qSYNC ${TAG}_MAP
 
 find $CACHE -name '*.sam' | xargs -n 1 -I % bsub -pe alloc 4 -N ${TAG}_SAM2MAP $BIN/sam2MapCheckClip.py % $GENOME
