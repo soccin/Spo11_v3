@@ -1,4 +1,4 @@
-#!/ifs/data/socci/opt/FAT/bin/python2.7
+#!/opt/bin/python2.7
 
 import sys
 
