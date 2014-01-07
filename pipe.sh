@@ -101,7 +101,7 @@ else
 fi
 
 MAPFILE=${SAMPLE/Sample_/s_}___MULTI_FILT.map
-qsub -q $QUEUES -pe alloc 24 -q fat.q,all.q -N ${TAG}_MERGEMULTI ~/Work/SGE/qCMD $BIN/mergeMultiMaps.sh $CACHE $MAPFILE
+qsub -q $QUEUES -pe alloc 24 -N ${TAG}_MERGEMULTI ~/Work/SGE/qCMD $BIN/mergeMultiMaps.sh $CACHE $MAPFILE
 qSYNC ${TAG}_MERGEMULTI
 
 for ci in `cat $CHROMS`; do
