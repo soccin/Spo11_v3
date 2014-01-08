@@ -3,6 +3,6 @@ for dir in `cat DIRS`; do
    	mkdir -p $sample;
 	cp spo11.sh $sample
    	cd $sample;
-   	bsub -N SPO11 ../../Spo11_v3/pipe.sh $dir;
+   	qsub -N SPO11 ~/Work/SGE/qCMD ../../Spo11_v3/pipe.sh $dir;
    	cd ..;
 done
