@@ -1,0 +1,4 @@
+../Spo11_v3.1/checkError.sh 
+../Spo11_v3.1/cleanup.sh 
+(../Spo11_v3.1/getStats.py HEADER; find Results/ -name '*STATS.txt' | xargs cat) > _STATS.txt
+
