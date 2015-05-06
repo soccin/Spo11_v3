@@ -1,0 +1,19 @@
+PROJNO=5609
+
+cp ../Spo11_v3.1/spo11.sh .
+# vi set GENOME
+
+ls -d /ifs/archive/GCL/hiseq/FASTQ/*/P*${PROJNO}/S* | tee sampleDIRS
+
+../Spo11_v3.1/processProjects.sh $(cat sampleDIRS)
+
+# SYNC 
+
+more ../Spo11_v3.1/POSTPROCESS.CMDS 
+
+mv _STATS.txt proj_${PROJNO}_STATS.txt
+txt2xls proj_${PROJNO}_STATS.txt 
+rm *STATS.txt
+
+mkdir /ifs/res/socci/Results/Keeney/Spo11/HiSeqRuns/Project_${PROJNO}
+cp proj_${PROJNO}_STATS.xls /ifs/res/socci/Results/Keeney/Spo11/HiSeqRuns/Project_${PROJNO}
