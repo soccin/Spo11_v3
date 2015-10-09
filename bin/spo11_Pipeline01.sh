@@ -10,8 +10,8 @@ BIN=$SDIR
 #
 ADAPTER=AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC
 
-SHRIMP_FOLDER=/home/socci/Work/SeqAna/Mappers/SHRiMP/2_1_1/SHRiMP_2_1_1b
-GMAPPER=/ifs/data/socci/Work/SeqAna/Mappers/SHRiMP/2_1_1/SHRiMP_2_1_1b/bin/gmapper-ls
+SHRIMP_FOLDER=$SDIR/SHRiMP_2_1_1b
+GMAPPER=$SDIR/SHRiMP_2_1_1b/bin/gmapper-ls
 
 ####
 # Mapping Parameters
@@ -30,11 +30,11 @@ BASE=${FASTQ##*/}
 BASE=${BASE%%.*}
 BASE=$OUTFOLDER/$BASE
 
-#zcat $FASTQ | head -40000 | /ifs/data/socci/opt/bin/fastx_clipper -a $ADAPTER -l $MIN_CLIP_LEN -n -v -Q33 -i - \
-#    | $BIN/splitMixer.py > ${BASE}___CLIPPED.fastq
-
-zcat $FASTQ | /ifs/data/socci/opt/bin/fastx_clipper -a $ADAPTER -l $MIN_CLIP_LEN -n -v -Q33 -i - \
+zcat $FASTQ | head -40000 | $BIN/fastx_clipper -a $ADAPTER -l $MIN_CLIP_LEN -n -v -Q33 -i - \
     | $BIN/splitMixer.py > ${BASE}___CLIPPED.fastq
+
+#zcat $FASTQ | $BIN/fastx_clipper -a $ADAPTER -l $MIN_CLIP_LEN -n -v -Q33 -i - \
+#    | $BIN/splitMixer.py > ${BASE}___CLIPPED.fastq
 
 $GMAPPER -N 18 -U -g -1000 -q -1000 \
     -m 10 -i -20 -h 100 -r 50% \
