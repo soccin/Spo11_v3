@@ -58,17 +58,20 @@ echo NUMFASTQ=$NUMFASTQ
 TAG=q_SPO11_$$
 echo TAG=$TAG
 
-#qsub -pe alloc 24 -q $QUEUES -N ${TAG}_MAP -t 1-$NUMFASTQ \
 for file in $(cat $FASTQ); do
 	bsub -o LSF.SPO11/ -We 59 -n 24 -J ${TAG}_MAP \
 	$BIN/spo11_Pipeline01.sh $file $GTAG $GENOME $CACHE $MIN_CLIP_LEN
 done
-exit
 
-qSYNC ${TAG}_MAP
+echo "Holding on" ${TAG}_MAP
+$SDIR/bin/bSync ${TAG}_MAP
 
-find $CACHE -name '*.sam' | xargs -n 1 -I % qsub -pe alloc 4 -N ${TAG}_SAM2MAP ~/Work/SGE/qCMD $BIN/sam2MapCheckClip.py % $GENOME
-qSYNC ${TAG}_SAM2MAP
+find $CACHE -name '*.sam' | xargs -n 1 -I % \
+	bsub -o LSF.SPO11/ -We 59 -n 4 -J ${TAG}_SAM2MAP \
+	$BIN/sam2MapCheckClip.py % $GENOME
+
+echo "Holding on" ${TAG}_SAM2MAP
+$SDIR/bin/bSync ${TAG}_SAM2MAP
 
 echo "Calling getStats ..."
 $SDIR/getStats.py ${PROJ}___${SAMPLE/Sample_/s_} >${SAMPLE/Sample_/s_}___STATS.txt
@@ -82,6 +85,8 @@ head -1000 $(find $CACHE -name '*.sam' | head -1) | egrep "^@SQ" | cut -f2 | sed
 
 echo "MAPFILE="$MAPFILE
 
+exit
+
 if [ $DOFULL == "YES" ]; then
     echo "DO FULL MAPS NO LONGER IMPLEMENTED"
     exit
@@ -90,11 +95,13 @@ else
         echo $ci;
         mkdir -p splitChrom/$ci;
         OUTMAP=splitChrom/$ci/$(basename $MAPFILE | sed 's/.map//')__SPLIT,${ci}.map
-        qsub -q $QUEUES -N ${TAG}_GREP ~/Work/SGE/qCMD \
-        	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>$OUTMAP;
+		bsub -o LSF.SPO11/ -We 59 -J ${TAG}_GREP \
+			$SDIR/bin/splitMapByChrom $ci $MAPFILE ">" $OUTMAP
     done
-    qSYNC ${TAG}_GREP
-
+    
+	$SDIR/bin/bSync ${TAG}_GREP
+	exit
+	
     find splitChrom | fgrep .map | xargs -n 1 qsub -q $QUEUES -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
     qSYNC ${TAG}_RSCRIPT
 
