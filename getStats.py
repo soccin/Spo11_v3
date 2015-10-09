@@ -54,11 +54,16 @@ for rec in os.walk(resultsDir):
 
 
 fTotal=float(stats["total"])
-print "\t".join(map(str,
-    [projectSample,stats["total"],
-    stats["clipped"],stats["clipped"]/fTotal,
-    stats["mapped"],stats["mapped"]/fTotal,
-    stats["Total_Filtered_Maps"],stats["Total_Filtered_Maps"]/fTotal,
-    stats["Unique_Filtered_Maps"],stats["Unique_Filtered_Maps"]/fTotal,
-    stats["Multi_Filtered_Maps"],stats["Multi_Filtered_Maps"]/fTotal
-    ]))
+if fTotal>0:
+    print "\t".join(map(str,
+        [projectSample,stats["total"],
+        stats["clipped"],stats["clipped"]/fTotal,
+        stats["mapped"],stats["mapped"]/fTotal,
+        stats["Total_Filtered_Maps"],stats["Total_Filtered_Maps"]/fTotal,
+        stats["Unique_Filtered_Maps"],stats["Unique_Filtered_Maps"]/fTotal,
+        stats["Multi_Filtered_Maps"],stats["Multi_Filtered_Maps"]/fTotal
+        ]))
+else:
+    print "\t".join(map(str,
+        [projectSample,stats["total"]]))
+    
