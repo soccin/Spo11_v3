@@ -31,8 +31,8 @@ DOFULL="NO"
 
 
 DDIR=$(echo $1 | sed 's/\/$//')
-PROJ=$(echo $DDIR | pyp s[-2])
-SAMPLE=$(echo $DDIR | pyp s[-1])
+PROJ=$(echo $DDIR | awk -F'/' '{print $(NF-1)}')
+SAMPLE=$(echo $DDIR | awk -F'/' '{print $(NF)}')
 
 DATA=$DDIR/*R1_*.gz
 
@@ -58,10 +58,12 @@ echo NUMFASTQ=$NUMFASTQ
 TAG=q_SPO11_$$
 echo TAG=$TAG
 
-QUEUES=lau.q,mad.q,nce.q
-
-qsub -pe alloc 24 -q $QUEUES -N ${TAG}_MAP -t 1-$NUMFASTQ ~/Work/SGE/qArrayCMD $FASTQ \
-    $BIN/spo11_Pipeline01.sh \$task $GTAG $GENOME $CACHE $MIN_CLIP_LEN
+#qsub -pe alloc 24 -q $QUEUES -N ${TAG}_MAP -t 1-$NUMFASTQ \
+for file in $(cat $FASTQ); do
+	bsub -o LSF.SPO11/ -We 59 -n 24 -J ${TAG}_MAP \
+	$BIN/spo11_Pipeline01.sh $file $GTAG $GENOME $CACHE $MIN_CLIP_LEN
+done
+exit
 
 qSYNC ${TAG}_MAP
 
