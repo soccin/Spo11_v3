@@ -1,6 +1,5 @@
 #!/bin/bash
 
-source /home/socci/Work/SGE/sge.sh
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Make sure user sets parameters
@@ -85,8 +84,6 @@ head -1000 $(find $CACHE -name '*.sam' | head -1) | egrep "^@SQ" | cut -f2 | sed
 
 echo "MAPFILE="$MAPFILE
 
-exit
-
 if [ $DOFULL == "YES" ]; then
     echo "DO FULL MAPS NO LONGER IMPLEMENTED"
     exit
@@ -96,34 +93,38 @@ else
         mkdir -p splitChrom/$ci;
         OUTMAP=splitChrom/$ci/$(basename $MAPFILE | sed 's/.map//')__SPLIT,${ci}.map
 		bsub -o LSF.SPO11/ -We 59 -J ${TAG}_GREP \
-			$SDIR/bin/splitMapByChrom $ci $MAPFILE ">" $OUTMAP
+			$SDIR/bin/splitMapByChrom.sh $ci $MAPFILE ">" $OUTMAP
     done
     
 	$SDIR/bin/bSync ${TAG}_GREP
-	exit
 	
-    find splitChrom | fgrep .map | xargs -n 1 qsub -q $QUEUES -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
-    qSYNC ${TAG}_RSCRIPT
+    find splitChrom | fgrep .map | xargs -n 1 \
+		bsub -o LSF.SPO11/ -We 59 -J ${TAG}_RSCRIPT \
+			Rscript --no-save $BIN/cvt2R.R
+    $SDIR/bin/bSync ${TAG}_RSCRIPT
 
     find splitChrom | fgrep Rdata | fgrep -v HitMap | fgrep UNIQUE \
-    	| xargs -n 1 qsub -q $QUEUES -N ${TAG}_MKHITMAPU ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
+    	| xargs -n 1 bsub -LSF.SPO11/ -We 59 -J ${TAG}_MKHITMAPU Rscript --no-save $BIN/mkHitMap.R
 fi
 
 MAPFILE=${SAMPLE/Sample_/s_}___MULTI_FILT.map
-qsub -q $QUEUES -pe alloc 24 -N ${TAG}_MERGEMULTI ~/Work/SGE/qCMD $BIN/mergeMultiMaps.sh $CACHE $MAPFILE
-qSYNC ${TAG}_MERGEMULTI
+bsub -o LSF.SPO11/ -We 59 -n 24 -J ${TAG}_MERGEMULTI $BIN/mergeMultiMaps.sh $CACHE $MAPFILE
+$SDIR/bin/bSync ${TAG}_MERGEMULTI
 
 for ci in `cat $CHROMS`; do
     echo $ci;
     OUTMAP=splitChrom/$ci/$(basename $MAPFILE | sed 's/.map//')__SPLIT,${ci}.map
 
-    qsub -N ${TAG}_GREP ~/Work/SGE/qCMD \
-    	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>$OUTMAP;
+	bsub -o LSF.SPO11/ -We 59 -J ${TAG}_GREP \
+		$SDIR/bin/splitMapByChrom.sh $ci $MAPFILE ">" $OUTMAP
+
 done
-qSYNC ${TAG}_GREP
-find splitChrom | fgrep .map | fgrep MULTI | xargs -n 1 qsub -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/cvt2R.R
-qSYNC ${TAG}_RSCRIPT
+
+$SDIR/bin/bSync ${TAG}_GREP
+find splitChrom | fgrep .map | fgrep MULTI | xargs -n 1 \
+	bsub -o LSF.SPO11/ -We 59 -J ${TAG}_RSCRIPT Rscript --no-save $BIN/cvt2R.R
+$SDIR/bin/bSync ${TAG}_RSCRIPT
 
 find splitChrom | fgrep Rdata | fgrep -v HitMap | fgrep MULTI \
-	| xargs -n 1 qsub -N ${TAG}_MKHITMAPM ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
+	| xargs -n 1 bsub -o LSF.SPO11/ -We 59 -J ${TAG}_MKHITMAPM Rscript --no-save $BIN/mkHitMap.R
 
