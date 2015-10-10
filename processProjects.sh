@@ -1,3 +1,7 @@
+#!/bin/bash
+
+SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 for dir in $*; do
     dir=$(echo $dir | perl -pe 's|/$||');
     sample=$(basename $dir | sed 's/Sample_/s_/');
@@ -5,6 +9,6 @@ for dir in $*; do
     mkdir -p Results/$sample;
     cp spo11.sh Results/$sample;
     cd Results/$sample;
-#    qsub -pe alloc 1 -N q_SPO ~/Work/SGE/qCMD /home/socci/Work/Keeney/Spo11/Version3_130817/Spo11_v3.1/pipe.sh $dir;
+    bsub -o LSF.CONTROL/ -J q_SPO $SDIR/pipe.sh $dir;
     cd ../..;
 done
