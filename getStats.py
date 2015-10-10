@@ -40,9 +40,9 @@ if projectSample=="HEADER":
     print HEADER.replace(" ","\t")
     sys.exit()
 
-for fname in os.listdir("."):
-    if fname.find("_MAP.e")>-1:
-        parseMapLog(fname,stats)
+for fname in os.listdir("LSF.SPO11"):
+    if fname.find(".out")>-1:
+        parseMapLog(os.path.join("LSF.SPO11",fname),stats)
 
 
 resultsDir=[x for x in os.listdir(".") if x.startswith("_._res")][0]
