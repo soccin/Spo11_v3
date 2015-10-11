@@ -2,6 +2,9 @@
 
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# For R in case /tmp is full
+export TMPDIR=/scratch/socci
+
 # Make sure user sets parameters
 GENOME="NULL"
 
