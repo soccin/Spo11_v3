@@ -1,19 +1,29 @@
-PROJNO=5609
+SET PROJNO
+SET INVEST
+NUM=$(echo $PROJNO  | sed 's/Proj_//')
 
-cp ../Spo11_v3.1/spo11.sh .
-# vi set GENOME
+mkdir $PROJNO
+cd $PROJNO
+cp ../Spo11_v3/spo11.sh .
+vi spo11.sh # set genome
 
-ls -d /ifs/archive/GCL/hiseq/FASTQ/*/P*${PROJNO}/S* | tee sampleDIRS
+ls -d /ifs/archive/GCL/hiseq/FASTQ/*/Proj*$NUM/S* | tee data
+#ls -d /ifs/input/GCL/hiseq/FASTQ/*/Proj*$NUM/S* | tee data
 
-../Spo11_v3.1/processProjects.sh $(cat sampleDIRS)
+# Fix data
 
-# SYNC 
+../Spo11_v3/processProjects.sh $(cat data)
 
-more ../Spo11_v3.1/POSTPROCESS.CMDS 
+../Spo11_v3/checkError.sh
 
-mv _STATS.txt proj_${PROJNO}_STATS.txt
-txt2xls proj_${PROJNO}_STATS.txt 
-rm *STATS.txt
+../Spo11_v3/cleanup.sh
 
-mkdir /ifs/res/socci/Results/Keeney/Spo11/HiSeqRuns/Project_${PROJNO}
-cp proj_${PROJNO}_STATS.xls /ifs/res/socci/Results/Keeney/Spo11/HiSeqRuns/Project_${PROJNO}
+(../Spo11_v3/getStats.py HEADER; find Results/ -name '*STATS.txt' | xargs cat) > ${PROJNO}_STATS.txt
+
+txt2xls ${PROJNO}_STATS.txt
+
+RESDIR=/ifs/solres/seq/keeneys/$INVEST/${PROJNO}
+mkdir -p $RESDIR
+rsync -avP Results/s_* $RESDIR
+cp *_STATS.* $RESDIR
+
