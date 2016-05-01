@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $SDIR/venv/bin/activate
 
 # For R in case /tmp is full
 export TMPDIR=/scratch/socci
@@ -12,7 +13,7 @@ GENOME="NULL"
 ## Get Run Paramters
 ###
 
-. spo11.sh
+source spo11.sh
 
 if [ "$GENOME" == "NULL" ]; then
     echo ""
@@ -98,9 +99,9 @@ else
 		bsub -o LSF.SPO11/ -We 59 -J ${TAG}_GREP \
 			$SDIR/bin/splitMapByChrom.sh $ci $MAPFILE ">" $OUTMAP
     done
-    
+
 	$SDIR/bin/bSync ${TAG}_GREP
-	
+
     find splitChrom | fgrep .map | xargs -n 1 \
 		bsub -o LSF.SPO11/ -We 59 -J ${TAG}_RSCRIPT \
 			Rscript --no-save $BIN/cvt2R.R
@@ -130,4 +131,6 @@ $SDIR/bin/bSync ${TAG}_RSCRIPT
 
 find splitChrom | fgrep Rdata | fgrep -v HitMap | fgrep MULTI \
 	| xargs -n 1 bsub -o LSF.SPO11/ -We 59 -J ${TAG}_MKHITMAPM Rscript --no-save $BIN/mkHitMap.R
+
+deactivate
 
