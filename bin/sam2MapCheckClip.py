@@ -8,6 +8,9 @@ BAM_CMATCH=0
 
 NEW_SCORE_FILTER_THRESHOLD=0.85
 
+BASE_3p="GN"
+BASE_5p="CN"
+
 cigarDict={BAM_CSOFT_CLIP:"S",BAM_CMATCH:"M",BAM_CHARD_CLIP:"H"}
 
 def formatCigar(cigar):
@@ -80,11 +83,11 @@ for si in sam:
         continue
     leftClip=0 if si.cigar[0][0]!=BAM_CSOFT_CLIP else si.cigar[0][1]
     leftClipSeq = si.seq[:leftClip]
-    leftClipMM = sum([x.upper() not in "CN" for x in leftClipSeq])
+    leftClipMM = sum([x.upper() not in BASE_5p for x in leftClipSeq])
     leftClipMM_N = sum([x.upper()=="N" for x in leftClipSeq])
     rightClip=0 if si.cigar[-1][0]!=BAM_CSOFT_CLIP else si.cigar[-1][1]
     rightClipSeq = si.seq[(len(si.seq)-rightClip):]
-    rightClipMM = sum([x.upper() not in "GN" for x in rightClipSeq])
+    rightClipMM = sum([x.upper() not in BASE_3p for x in rightClipSeq])
     rightClipMM_N = sum([x.upper()=="N" for x in rightClipSeq])
     oldScore=si.opt("AS")
 
