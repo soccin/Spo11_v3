@@ -36,14 +36,13 @@ echo TAG=$TAG
 
 for fi in $(cat FASTQ); do
 
-    bsub -n 12 -o LSF/ -J ${TAG}_MAP -R "rusage[mem=80]" -M 81 \
+    bsub -n 18 -o LSF/ -J ${TAG}_MAP -R "rusage[mem=80]" -M 81 \
         $BIN/spo11_Pipeline01.sh $fi $GTAG $GENOME $OUTFOLDER
 
 done
 
 bSync ${TAG}_MAP
 
-exit
 find $OUTFOLDER/* -name '*.sam' | xargs -n 1 -I % \
     bsub -n 2 -o LSF/ -J ${TAG}_SAM2MAP $BIN/sam2MapCheckClip.py % $GENOME
 

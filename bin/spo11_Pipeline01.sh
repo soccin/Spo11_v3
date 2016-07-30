@@ -41,9 +41,9 @@ BASE=$OUTFOLDER/$BASE
 #zcat $FASTQ | /ifs/data/socci/opt/bin/fastx_clipper -a $ADAPTER -l $MIN_CLIP_LEN -n -v -Q33 -i - \
 #    | $BIN/splitMixer.py > ${BASE}___CLIPPED.fastq
 
-zcat $FASTQ | head -400000 | $BIN/fastqLenFilter.py 15 > ${BASE}___CLIPPED.fastq
+zcat $FASTQ | head -1000000 | $BIN/fastqLenFilter.py 15 > ${BASE}___CLIPPED.fastq
 
-$GMAPPER -N 24 -U -g -1000 -q -1000 \
+$GMAPPER -N 18 -U -g -1000 -q -1000 \
     -m 10 -i -20 -h 100 -r 50% \
     -n 1 \
     -L $GENOME_INDEX \
