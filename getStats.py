@@ -1,4 +1,4 @@
-#!/opt/bin/python2.7
+#!/usr/bin/env python2.7
 
 import sys
 import os
@@ -50,7 +50,7 @@ for rec in os.walk(resultsDir):
             fullName=os.path.join(rec[0],fname)
             parseStatsLog(fullName,stats)
 
-    
+
 fTotal=float(stats["total"])
 print "\t".join(map(str,
     [projectSample,stats["total"],
