@@ -32,10 +32,16 @@ BASE=${FASTQ##*/}
 BASE=${BASE%%.*}
 BASE=$OUTFOLDER/$BASE
 
-echo BASE=$BASE
+##
+# For Length Renorm run we already removed the adapter so skip it
+# But we still need to filter for a min length of 15 which is the
+# smallest default seed in gmapper.
+# Also we already removed the MIXER sequence so do not do that
+#
+#zcat $FASTQ | /ifs/data/socci/opt/bin/fastx_clipper -a $ADAPTER -l $MIN_CLIP_LEN -n -v -Q33 -i - \
+#    | $BIN/splitMixer.py > ${BASE}___CLIPPED.fastq
 
-zcat $FASTQ | head -400000 | $SDIR/fastx_clipper -a $ADAPTER -l $MIN_CLIP_LEN -n -v -Q33 -i - \
-    | $BIN/splitMixer.py > ${BASE}___CLIPPED.fastq
+zcat $FASTQ | head -400000 | $BIN/fastqLenFilter.py 15 > ${BASE}___CLIPPED.fastq
 
 $GMAPPER -N 24 -U -g -1000 -q -1000 \
     -m 10 -i -20 -h 100 -r 50% \
