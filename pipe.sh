@@ -81,7 +81,7 @@ else
             Rscript --no-save $BIN/mkHitMap.R
 fi
 
-bsub -o LSF/ -n 12 -J ${TAG}_MERGEMULTI \
+bsub -o LSF/ -R "rusage[mem=70]" -M 70 -n 12 -J ${TAG}_MERGEMULTI \
     $BIN/mergeMultiMaps.sh $OUTFOLDER
 bSync ${TAG}_MERGEMULTI
 
