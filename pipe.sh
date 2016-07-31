@@ -63,8 +63,8 @@ else
     for ci in `cat CHROMS`; do
         echo $ci;
         mkdir -p splitChrom/$ci;
-        bsub -o LSF/ -J ${TAG}_GREP \
-        	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>splitChrom/$ci/${MAPFILE%%.map}__SPLIT,${ci}.map;
+        bsub -o LSF/ -J ${TAG}_GREP  $BIN/grepChrom.sh $ci $MAPFILE splitChrom/$ci/${MAPFILE%%.map}__SPLIT,${ci}.map
+        #/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>splitChrom/$ci/${MAPFILE%%.map}__SPLIT,${ci}.map;
     done
     bSync ${TAG}_GREP
 
@@ -85,12 +85,13 @@ bsub -o LSF/ -R "rusage[mem=70]" -M 70 -n 12 -J ${TAG}_MERGEMULTI \
 bSync ${TAG}_MERGEMULTI
 
 MAPFILE=${SAMPLE/Sample_/s_}___MULTI_FILT.map
+echo $MAPFILE
 
 for ci in `cat CHROMS`; do
     echo $ci;
     mkdir -p splitChrom/$ci;
-    bsub -o LSF/ -J ${TAG}_GREP \
-    	/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>splitChrom/$ci/${MAPFILE%%.map}__SPLIT,${ci}.map;
+    bsub -o LSF/ -J ${TAG}_GREP $BIN/grepChrom.sh $ci $MAPFILE splitChrom/$ci/${MAPFILE%%.map}__SPLIT,${ci}.map
+    #/bin/egrep -w \"\($ci\|chrom\)\" $MAPFILE \| cut -f1-12,14- \>splitChrom/$ci/${MAPFILE%%.map}__SPLIT,${ci}.map;
 done
 bSync ${TAG}_GREP
 
