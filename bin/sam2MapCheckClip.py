@@ -72,7 +72,7 @@ bunch=[]
 currentQname=""
 
 for si in sam:
-    assert isinstance(si,pysam.AlignedRead)
+    assert isinstance(si,pysam.AlignedSegment)
     if si.is_unmapped:
         continue
     leftClip=0 if si.cigar[0][0]!=BAM_CSOFT_CLIP else si.cigar[0][1]
