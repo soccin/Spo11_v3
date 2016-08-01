@@ -102,5 +102,7 @@ find splitChrom | fgrep .map | fgrep MULTI | xargs -n 1 \
 bSync ${TAG}_RSCRIPT
 
 find splitChrom | fgrep Rdata | fgrep -v HitMap | fgrep MULTI \
-	| xargs -n 1 qsub -N ${TAG}_RSCRIPT ~/Work/SGE/qCMD Rscript --no-save $BIN/mkHitMap.R
+	| xargs -n 1 \
+    bsub -o LSF/ -J ${TAG}_RSCRIPT \
+    Rscript --no-save $BIN/mkHitMap.R
 
