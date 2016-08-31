@@ -104,8 +104,9 @@ for si in sam:
         out.extend([leftClip,rightClip,si.opt("IH"),si.opt("NM")])
         out.extend([si.opt("AS"),newScore])
         out.append(si.alen)
-        out.append(si.qname),
-        out.append(si.qname.split(":")[-1])
+        F=si.qname.split(":")
+        out.append(":".join(F[:-1])),
+        out.append(F[-1])
         out.append(si.seq)
         out.append(si.seq[si.qstart:si.qend])
         out.append(leftClipSeq)
