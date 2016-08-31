@@ -4,6 +4,7 @@ SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 for dir in $*; do
     dir=$(echo $dir | perl -pe 's|/$||');
+    dir=$(readlink -e $dir)
     sample=$(basename $dir | sed 's/Sample_/s_/');
     echo $sample, $dir;
     mkdir -p Results/$sample;
