@@ -7,7 +7,7 @@ echo
 exit
 
 ##GENOME & GENOME TAG 
-#GENOME=/ifs/res/socci/LUX/ifs/data/bio/Genomes/S.cerevisiae/sacCer2/SGD/20080628/SGD_sacCer2.fasta
+#GENOME=/ifs/work/socci/Depot/Genomes/S.cerevisiae/sacCer2/SGD/20080628/SGD_sacCer2.fasta
 #GTAG=SGD_sacCer2
 
 #GENOME=/ifs/data/bio/Genomes/M.musculus/mm10/mouse_mm10__All.fa
