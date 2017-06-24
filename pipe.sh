@@ -32,12 +32,16 @@ echo MIN_CLIP_LEN=$MIN_CLIP_LEN
 
 DOFULL="NO"
 
+if [ "$#" -lt "1" ]; then
+    echo
+    echo usage Spo11_v3/pipe.sh FASTQ_SAMPLE_DIR [FASTQ_SAMPLE_DIR_2 ...]
+    echo
+    exit
+fi
 
-DDIR=$(echo $1 | sed 's/\/$//')
-PROJ=$(echo $DDIR | awk -F'/' '{print $(NF-1)}')
-SAMPLE=$(echo $DDIR | awk -F'/' '{print $(NF)}')
-
-DATA=$DDIR/*R1_*.gz
+DDIR1=$(echo $1 | sed 's/\/$//')
+PROJ=$(echo $DDIR1 | awk -F'/' '{print $(NF-1)}')
+SAMPLE=$(echo $DDIR1 | awk -F'/' '{print $(NF)}')
 
 ## Subsample for testing on MOUSE RUNS
 #DATA=$(ls $DDIR/*_R1_*.gz | awk 'BEGIN{srand(31415)}rand()<0.05{print $1}')
@@ -54,7 +58,7 @@ mkdir -p $CACHE
 BIN=$SDIR/bin
 
 FASTQ=$CACHE/FASTQ
-ls $DATA >$FASTQ
+find $* -name "*_R1_*.gz" >$FASTQ
 NUMFASTQ=$(wc -l $FASTQ | awk '{print $1}')
 echo NUMFASTQ=$NUMFASTQ
 
