@@ -9,6 +9,10 @@ fi
 
 for sample in $(cat $MAPPING | cut -f2 | sort | uniq); do
     echo $sample;
-    cat $MAPPING | awk -v S=$sample '$2==S{print $4}' \
-        | xargs bsub -o LSF.CONTROL/ -J q_SPO $SDIR/pipe.sh
+    mkdir -p Results/$sample;
+    cp spo11.sh Results/$sample;
+    cd Results/$sample
+    cat ../../$MAPPING | awk -v S=$sample '$2==S{print $4}' \
+        | xargs bsub -o ../../LSF.CONTROL/ -J q_SPO $SDIR/pipe.sh
+    cd ../..
 done
