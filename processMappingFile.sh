@@ -10,5 +10,5 @@ fi
 for sample in $(cat $MAPPING | cut -f2 | sort | uniq); do
     echo $sample;
     cat $MAPPING | awk -v S=$sample '$2==S{print $4}' \
-        | xargs $SDIR/pipe.sh
+        | xargs bsub -o LSF.CONTROL/ -J q_SPO $SDIR/pipe.sh
 done
