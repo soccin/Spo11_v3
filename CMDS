@@ -12,13 +12,13 @@ ls -d /ifs/archive/GCL/hiseq/FASTQ/*/Proj*$NUM/S* | tee data
 
 # Fix data
 
-../Spo11_v3/processProjects.sh $(cat data)
+./Spo11_v3/processProjects.sh $(cat data)
 
-../Spo11_v3/checkError.sh
+./Spo11_v3/checkError.sh
 
-../Spo11_v3/cleanup.sh
+./Spo11_v3/cleanup.sh
 
-(../Spo11_v3/getStats.py HEADER; find Results/ -name '*STATS.txt' | xargs cat) > ${PROJNO}_STATS.txt
+(./Spo11_v3/getStats.py HEADER; find Results/ -name '*STATS.txt' | xargs cat) > ${PROJNO}_STATS.txt
 
 txt2xls ${PROJNO}_STATS.txt
 
