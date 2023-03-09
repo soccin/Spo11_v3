@@ -65,8 +65,13 @@ echo NUMFASTQ=$NUMFASTQ
 TAG=q_SPO11_$$
 echo TAG=$TAG
 
+LSF_TIME_LONG="-W 24:00"
+LSF_TIME_MED="-W 359"
+LSF_TIME_SHORT="-W 59"
+LSF_TIME=$LSF_TIME_MED
+
 for file in $(cat $FASTQ); do
-	bsub -o LSF.SPO11/ -We 119 -n 24 -J ${TAG}_MAP \
+	bsub -o LSF.SPO11/ $LSF_TIME_LONG -n 24 -J ${TAG}_MAP \
 	$BIN/spo11_Pipeline01.sh $file $GTAG $GENOME $CACHE $MIN_CLIP_LEN
 done
 
@@ -74,7 +79,7 @@ echo "Holding on" ${TAG}_MAP
 $SDIR/bin/bSync ${TAG}_MAP
 
 find $CACHE -name '*.sam' | xargs -n 1 -I % \
-	bsub -o LSF.SPO11/ -We 119 -n 4 -J ${TAG}_SAM2MAP \
+	bsub -o LSF.SPO11/ $LSF_TIME -n 4 -J ${TAG}_SAM2MAP \
 	$BIN/sam2MapCheckClip.py % $GENOME
 
 echo "Holding on" ${TAG}_SAM2MAP
@@ -100,41 +105,41 @@ else
         echo $ci;
         mkdir -p splitChrom/$ci;
         OUTMAP=splitChrom/$ci/$(basename $MAPFILE | sed 's/.map//')__SPLIT,${ci}.map
-		bsub -o LSF.SPO11/ -We 119 -J ${TAG}_GREP \
+		bsub -o LSF.SPO11/ $LSF_TIME -J ${TAG}_GREP \
 			$SDIR/bin/splitMapByChrom.sh $ci $MAPFILE ">" $OUTMAP
     done
 
 	$SDIR/bin/bSync ${TAG}_GREP
 
     find splitChrom | fgrep .map | xargs -n 1 \
-		bsub -o LSF.SPO11/ -We 119 -J ${TAG}_RSCRIPT \
+		bsub -o LSF.SPO11/ $LSF_TIME -J ${TAG}_RSCRIPT \
 			Rscript --no-save $BIN/cvt2R.R
     $SDIR/bin/bSync ${TAG}_RSCRIPT
 
     find splitChrom | fgrep Rdata | fgrep -v HitMap | fgrep UNIQUE \
-    	| xargs -n 1 bsub -LSF.SPO11/ -We 119 -J ${TAG}_MKHITMAPU Rscript --no-save $BIN/mkHitMap.R
+    	| xargs -n 1 bsub -LSF.SPO11/ $LSF_TIME -J ${TAG}_MKHITMAPU Rscript --no-save $BIN/mkHitMap.R
 fi
 
 MAPFILE=${SAMPLE/Sample_/s_}___MULTI_FILT.map
-bsub -o LSF.SPO11/ -We 119 -n 24 -J ${TAG}_MERGEMULTI $BIN/mergeMultiMaps.sh $CACHE $MAPFILE
+bsub -o LSF.SPO11/ $LSF_TIME -n 24 -J ${TAG}_MERGEMULTI $BIN/mergeMultiMaps.sh $CACHE $MAPFILE
 $SDIR/bin/bSync ${TAG}_MERGEMULTI
 
 for ci in `cat $CHROMS`; do
     echo $ci;
     OUTMAP=splitChrom/$ci/$(basename $MAPFILE | sed 's/.map//')__SPLIT,${ci}.map
 
-	bsub -o LSF.SPO11/ -We 119 -J ${TAG}_GREP \
+	bsub -o LSF.SPO11/ $LSF_TIME -J ${TAG}_GREP \
 		$SDIR/bin/splitMapByChrom.sh $ci $MAPFILE ">" $OUTMAP
 
 done
 
 $SDIR/bin/bSync ${TAG}_GREP
 find splitChrom | fgrep .map | fgrep MULTI | xargs -n 1 \
-	bsub -o LSF.SPO11/ -We 119 -J ${TAG}_RSCRIPT Rscript --no-save $BIN/cvt2R.R
+	bsub -o LSF.SPO11/ $LSF_TIME -J ${TAG}_RSCRIPT Rscript --no-save $BIN/cvt2R.R
 $SDIR/bin/bSync ${TAG}_RSCRIPT
 
 find splitChrom | fgrep Rdata | fgrep -v HitMap | fgrep MULTI \
-	| xargs -n 1 bsub -o LSF.SPO11/ -We 119 -J ${TAG}_MKHITMAPM Rscript --no-save $BIN/mkHitMap.R
+	| xargs -n 1 bsub -o LSF.SPO11/ $LSF_TIME -J ${TAG}_MKHITMAPM Rscript --no-save $BIN/mkHitMap.R
 
 deactivate
 
