@@ -10,6 +10,6 @@ for dir in $*; do
     mkdir -p Results/$sample;
     cp spo11.sh Results/$sample;
     cd Results/$sample;
-    bsub -o LSF.CONTROL/ -J q_SPO -W 48:00 $SDIR/pipe.sh $dir;
+    bsub -o LSF.CONTROL/ -J q_SPO -W 96:00 $SDIR/pipe.sh $dir;
     cd ../..;
 done
