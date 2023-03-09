@@ -65,13 +65,13 @@ echo NUMFASTQ=$NUMFASTQ
 TAG=q_SPO11_$$
 echo TAG=$TAG
 
-LSF_TIME_LONG="-W 24:00"
+LSF_TIME_LONG="-W 48:00"
 LSF_TIME_MED="-W 359"
 LSF_TIME_SHORT="-W 59"
 LSF_TIME=$LSF_TIME_MED
 
 for file in $(cat $FASTQ); do
-	bsub -o LSF.SPO11/ $LSF_TIME_LONG -n 24 -J ${TAG}_MAP \
+	bsub -o LSF.SPO11/ $LSF_TIME_LONG -n 32 -J ${TAG}_MAP \
 	$BIN/spo11_Pipeline01.sh $file $GTAG $GENOME $CACHE $MIN_CLIP_LEN
 done
 
