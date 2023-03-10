@@ -3,6 +3,7 @@
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ -e $SDIR/venv/bin/activate ]; then
     source $SDIR/venv/bin/activate
+    python2.7 -c "import pysam"
 else
     echo
     echo Need to setup python2.y venv
