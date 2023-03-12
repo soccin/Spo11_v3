@@ -15,6 +15,7 @@ fi
 
 # For R in case /tmp is full
 export TMPDIR=/scratch/socci
+mkdir -p $TMPDIR
 
 # Make sure user sets parameters
 GENOME="NULL"
@@ -81,7 +82,7 @@ LSF_TIME_SHORT="-W 59"
 LSF_TIME=$LSF_TIME_MED
 
 for file in $(cat $FASTQ); do
-	bsub -o LSF.SPO11/ $LSF_TIME_MED -n 32 -J ${TAG}_MAP \
+	bsub -o LSF.SPO11/ $LSF_TIME_LONG -n 32 -J ${TAG}_MAP \
 	$BIN/spo11_Pipeline01.sh $file $GTAG $GENOME $CACHE $MIN_CLIP_LEN
 done
 
