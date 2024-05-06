@@ -1,0 +1,5 @@
+git clone -b biopython-176 https://github.com/biopython/biopython.git
+. ../venv/bin/activate
+cd biopython
+python setup.py install
+deactivate
