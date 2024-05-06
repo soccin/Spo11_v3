@@ -1,6 +1,11 @@
 #!/bin/bash
 set -eu
 
+#
+# Fix unbound variable issue in virtual env
+#
+PS1=""
+
 SDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ -e $SDIR/venv/bin/activate ]; then
     source $SDIR/venv/bin/activate
