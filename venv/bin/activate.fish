@@ -36,7 +36,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/ifs/work/socci/Work/Users/KeeneyS/Spo11/Spo11_v3/venv"
+set -gx VIRTUAL_ENV "/juno/bic/work/socci/Work/Users/KeeneyS/Proj_09181_ReMap/Spo11_v3/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
