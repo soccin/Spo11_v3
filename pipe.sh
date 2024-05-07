@@ -159,3 +159,14 @@ find splitChrom | fgrep Rdata | fgrep -v HitMap | fgrep MULTI \
 
 deactivate
 
+GTAG=$(git --git-dir=$SDIR/.git --work-tree=$SDIR describe --all --long --tags --dirty="-UNCOMMITED" --always)
+GURL=$(git --git-dir=$SDIR/.git --work-tree=$SDIR config --get remote.origin.url)
+
+cat <<-END_VERSION > cmd.sh.log
+SDIR: $SDIR
+GURL: $GURL
+GTAG: $GTAG
+PWD: $PWD
+
+Script: $0 $*
+END_VERSION
