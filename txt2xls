@@ -1,0 +1,5 @@
+#!/usr/bin/env Rscript
+
+argv=commandArgs(trailing=T)
+tbl=readr::read_tsv(argv[1])
+openxlsx::write.xlsx(tbl,gsub(".txt",".xlsx",argv[1]))
